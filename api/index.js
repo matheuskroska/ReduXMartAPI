@@ -33,62 +33,18 @@ app.listen(3000, "localhost", () => {
   console.log("Servidor iniciado na porta 3000");
 });
 
-app.get("/products", (req, res) => {
+app.get("/products", async (req, res) => {
   res.set("Cache-Control", "public, max-age=31536000");
   try {
     const offset = validateOffset(req.query.offset);
     const limit = validateLimit(req.query.limit);
-    /* Getting the products from the cache. */
-    client.get("products", async (err, data) => {
-      /* Checking if the data is already in the cache. */
-      if (data) {
-        let products = JSON.parse(data);
-        /* Limiting the number of products returned. */
-        products = products.slice(offset, offset + limit);
-        res.json(products);
-        return;
-      } else {
-        /* Fetching the data from the two APIs. */
-        const products1 = await axios.get(API_URL);
-        const products2 = await axios.get(API_URL2);
-
-        /* Creating a new array with the products from both providers. */
-        let products = [
-          ...products1.data.map((p) => transformProduct(p, PROVIDER)),
-          ...products2.data.map((p) => transformProduct(p, PROVIDER2)),
-        ];
-
-        /* Limiting the number of products returned. */
-        products = products.slice(offset, offset + limit);
-
-        /* Setting the products in the cache. */
-        client.set("products", JSON.stringify(products));
-
-        res.json(products);
-      }
-    });
+    const products = await getProducts(offset, limit);
+    res.json(products);
   } catch (error) {
-    /* Returning an error message to the client. */
     res.status(500).json({ error: "Error getting products" });
   }
 });
 
-/**
- * It takes a product and a source and returns a new object with the same properties as the
- * product, but with some of the values transformed
- * @param product - the product object from the provider
- * @param source - the provider of the product
- * @returns An object with the following properties:
- * id: ++lastId,
- * name: product.nome,
- * category: product.categoria,
- * department: product.departamento,
- * description: product.descricao,
- * image: product.imagem,
- * material: product.material,
- * price: product.preco,
- * hasDiscount: false
- */
 function transformProduct(product, source) {
   if (source === PROVIDER) {
     return {
@@ -134,3 +90,37 @@ function validateLimit(limit) {
   }
   return parseInt(limit);
 }
+
+const getProducts = async (offset, limit) => {
+  let products = await getCacheProducts();
+  if (!products) {
+    products = await fetchProducts();
+    setCacheProducts(products);
+  }
+  return products.slice(offset, offset + limit);
+};
+
+const getCacheProducts = () => {
+  return new Promise((resolve, reject) => {
+    client.get("products", (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(JSON.parse(data));
+      }
+    });
+  });
+};
+
+const setCacheProducts = (products) => {
+  client.set("products", JSON.stringify(products));
+};
+
+const fetchProducts = async () => {
+  const products1 = await axios.get(API_URL);
+  const products2 = await axios.get(API_URL2);
+  return [
+    ...products1.data.map((p) => transformProduct(p, PROVIDER)),
+    ...products2.data.map((p) => transformProduct(p, PROVIDER2)),
+  ];
+};
