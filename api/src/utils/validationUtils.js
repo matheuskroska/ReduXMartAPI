@@ -1,3 +1,5 @@
+const DEFAULT_LIMIT = 10;
+
 function validateOffset(offset) {
   if (!offset || isNaN(offset) || parseInt(offset) < 0) {
     return 0;
@@ -11,3 +13,8 @@ function validateLimit(limit) {
   }
   return parseInt(limit);
 }
+
+module.exports = {
+  validateOffset,
+  validateLimit,
+};

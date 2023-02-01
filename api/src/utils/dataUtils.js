@@ -1,25 +1,23 @@
-import { getCache, setCache } from "../utils/cache";
-
 const PROVIDER = "brazilian_provider";
 const PROVIDER2 = "european_provider";
 const UNAVAILABLE = "unavailable";
-const DEFAULT_LIMIT = 10;
 let lastId = 0;
+
+const redis = require("redis");
+const client = redis.createClient();
+
+client.on("error", (err) => console.log("Redis Client Error", err));
+client.on("connect", () => console.log("Redis Client Connected"));
 
 const API_URL =
   "http://616d6bdb6dacbb001794ca17.mockapi.io/devnology/brazilian_provider";
 const API_URL2 =
   "http://616d6bdb6dacbb001794ca17.mockapi.io/devnology/european_provider";
 
-const getProducts = async (offset, limit) => {
-  let products = await getCache();
-  if (!products) {
-    products = await fetchProducts();
-    setCache(products);
-  }
-  return products.slice(offset, offset + limit);
-};
-
+/**
+Fetches product data from two API endpoints.
+@returns {Array} An array of product data transformed into a standard format.
+*/
 const fetchProducts = async () => {
   const products1 = await axios.get(API_URL);
   const products2 = await axios.get(API_URL2);
@@ -29,6 +27,12 @@ const fetchProducts = async () => {
   ];
 };
 
+/**
+Transforms product data into a standard format.
+@param {Object} product - The product data to be transformed.
+@param {String} provider - The provider of the product data.
+@returns {Object} The transformed product data in a standard format.
+*/
 const transformProduct = (product, provider) => {
   if (provider === PROVIDER) {
     return {
@@ -59,4 +63,36 @@ const transformProduct = (product, provider) => {
       provider: PROVIDER2,
     };
   }
+};
+
+/**
+ *Retrieves the products from cache.
+ *@returns {Promise} A Promise that resolves with the parsed JSON data of the "products" key in cache, or rejects with an error if there was a problem accessing the cache.
+ */
+const getCacheProducts = () => {
+  return new Promise((resolve, reject) => {
+    client.get("products", (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(JSON.parse(data));
+      }
+    });
+  });
+};
+
+/**
+Stores the products in cache.
+@param {Array} products - The products to be stored in cache.
+@returns {void}
+*/
+const setCacheProducts = (products) => {
+  client.set("products", JSON.stringify(products));
+};
+
+module.exports = {
+  fetchProducts,
+  transformProduct,
+  getCacheProducts,
+  setCacheProducts,
 };

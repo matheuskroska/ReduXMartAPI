@@ -1,5 +1,8 @@
-import { getProducts } from "../controllers/products";
-import { validateOffset, validateLimit } from "../utils/validation";
+const { getProducts } = require("../controllers/productsController");
+const { validateOffset, validateLimit } = require("../utils/validationUtils");
+
+const express = require("express");
+const app = express();
 
 app.get("/products", async (req, res) => {
   res.set("Cache-Control", "public, max-age=31536000");
@@ -12,3 +15,5 @@ app.get("/products", async (req, res) => {
     res.status(500).json({ error: "Error getting products" });
   }
 });
+
+module.exports = app;
