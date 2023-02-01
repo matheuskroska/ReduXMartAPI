@@ -1,7 +1,6 @@
-const { getProducts } = require("../controllers/productsController");
-const { validateOffset, validateLimit } = require("../utils/validationUtils");
-
-const express = require("express");
+import { getProducts } from "../controllers/productsController.js";
+import { validateOffset, validateLimit } from "../utils/validationUtils.js";
+import express from "express";
 const app = express();
 
 app.get("/products", async (req, res) => {
@@ -16,4 +15,4 @@ app.get("/products", async (req, res) => {
   }
 });
 
-module.exports = app;
+export default app;

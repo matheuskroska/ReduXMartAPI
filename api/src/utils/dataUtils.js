@@ -3,7 +3,7 @@ const PROVIDER2 = "european_provider";
 const UNAVAILABLE = "unavailable";
 let lastId = 0;
 
-const redis = require("redis");
+import redis from "redis";
 const client = redis.createClient();
 
 client.on("error", (err) => console.log("Redis Client Error", err));
@@ -90,9 +90,4 @@ const setCacheProducts = (products) => {
   client.set("products", JSON.stringify(products));
 };
 
-module.exports = {
-  fetchProducts,
-  transformProduct,
-  getCacheProducts,
-  setCacheProducts,
-};
+export { fetchProducts, transformProduct, getCacheProducts, setCacheProducts };

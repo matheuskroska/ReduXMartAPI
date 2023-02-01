@@ -1,8 +1,8 @@
-const {
+import {
   getCacheProducts,
   setCacheProducts,
   fetchProducts,
-} = require("../utils/dataUtils.js");
+} from "../utils/dataUtils.js";
 
 const getProducts = async (offset, limit) => {
   try {
@@ -17,6 +17,4 @@ const getProducts = async (offset, limit) => {
   }
 };
 
-module.exports = {
-  getProducts,
-};
+export { getProducts };

@@ -14,7 +14,4 @@ function validateLimit(limit) {
   return parseInt(limit);
 }
 
-module.exports = {
-  validateOffset,
-  validateLimit,
-};
+export { validateOffset, validateLimit };

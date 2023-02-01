@@ -1,5 +1,5 @@
-const express = require("express");
-const productRoute = require("./routes/productRoute");
+import express from "express";
+import productRoute from "./routes/productsRoute.js";
 
 const app = express();
 const port = 3000;
