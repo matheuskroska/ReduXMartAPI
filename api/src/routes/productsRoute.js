@@ -1,18 +1,30 @@
-import { getProducts } from "../controllers/productsController.js";
-import { validateOffset, validateLimit } from "../utils/validationUtils.js";
-import express from "express";
+const getProducts = require("../controllers/productsController.js").getProducts;
+const getLinks = require("../utils/linkUtils.js").getLinks;
+const validateOffset = require("../utils/validationUtils.js").validateOffset;
+const validateLimit = require("../utils/validationUtils.js").validateLimit;
+const handleValidationResponse = require("../utils/validationUtils.js").handleValidationResponse;
+
+const express = require("express");
 const app = express();
 
-app.get("/products", async (req, res) => {
-  res.set("Cache-Control", "public, max-age=31536000");
+app.get("/products", async (req, res, next) => {
   try {
-    const offset = validateOffset(req.query.offset);
-    const limit = validateLimit(req.query.limit);
-    const products = await getProducts(offset, limit);
-    res.json(products);
+    res.set("Cache-Control", "public, max-age=31536000");
+
+    const offset = handleValidationResponse(res, validateOffset(req.query.offset));
+    const limit = handleValidationResponse(res, validateLimit(req.query.limit));
+    const products = handleValidationResponse(res, await getProducts(offset, limit));
+
+    const response = {
+      message: "Products fetched successfully",
+      data: products,
+      links: getLinks(offset, limit),
+    };
+
+    res.status(200).send(response);
   } catch (error) {
-    res.status(500).json({ error: "Error getting products" });
+    next(error);
   }
 });
 
-export default app;
+module.exports = app;
