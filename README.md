@@ -68,12 +68,3 @@ HTTP 200 OK
 }
 
 ```
-#### Resposta de erro
-
-HTTP 500 Internal Server Error
-
-```json
-{
-"error": "Error fetching products"
-}
-```
