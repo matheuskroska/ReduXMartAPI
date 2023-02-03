@@ -2,7 +2,7 @@
 
 - Integração de APIs de terceiros: A API integra duas APIs de produtos de diferentes fornecedores, retornando todos os dados em um formato padrão.
 
-- Tecnologias utilizadas: A API é construída usando Node.js, Express e Axios.
+- Tecnologias utilizadas: A API é construída usando Node.js, Express e Axios, Jest e Supertest para cobrir testes.
 
 - Recursos adicionais: Limite e offset, controle de cache com Redis, tratamento de erros e implementação de padrões REST para retornos de status HTTP.
 
