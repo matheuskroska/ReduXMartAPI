@@ -20,6 +20,9 @@
 ### Get Products
 
 `GET /products`
+`GET /products?limit=int`
+`GET /products?offset=int`
+`GET /products?offset=int&limit=int`
 
 #### Parâmetros
 - offset: o número de itens a serem ignorados antes de começar a retornar resultados.
