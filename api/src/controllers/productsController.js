@@ -28,7 +28,10 @@ const getProducts = async (offset, limit) => {
     };
   }
 
-  return products.slice(offset, offset + limit);
+  return {
+    data: products.slice(offset, offset + limit),
+    length: products.length,
+  };
 };
 
 module.exports = {

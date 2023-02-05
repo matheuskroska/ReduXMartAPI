@@ -29,20 +29,15 @@ router.get("/products", async (req, res, next) => {
   try {
     res.set("Cache-Control", "public, max-age=31536000");
 
-    const offset = handleValidationResponse(
-      res,
-      validateOffset(req.query.offset)
-    );
+    const offset = handleValidationResponse(res,validateOffset(req.query.offset));
     const limit = handleValidationResponse(res, validateLimit(req.query.limit));
-    const products = handleValidationResponse(
-      res,
-      await getProducts(offset, limit)
-    );
+    const products = handleValidationResponse(res, await getProducts(offset, limit));
 
     const response = {
       message: "Products fetched successfully",
-      data: products,
+      available_products: products.length,
       links: getLinks(offset, limit),
+      data: products.data,
     };
 
     res.status(200).send(response);
